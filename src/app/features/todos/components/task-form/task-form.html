@@ -9,28 +9,7 @@
     }
   </div>
 
-  <mat-form-field class="task-form__priority-field" appearance="outline" subscriptSizing="dynamic">
-    <mat-select formControlName="priority" placeholder="Priority" panelClass="task-form-priority-panel"
-      aria-label="Task priority">
-      <mat-option [value]="taskPriority.Low">
-        <span class="priority-option">
-          Low
-        </span>
-      </mat-option>
-
-      <mat-option [value]="taskPriority.Medium">
-        <span class="priority-option">
-          Medium
-        </span>
-      </mat-option>
-
-      <mat-option [value]="taskPriority.High">
-        <span class="priority-option">
-          High
-        </span>
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <app-select formControlName="priority" [options]="taskPriorityOptions" placeholder="Priority" ariaLabel="Task priority"></app-select>
 
   <button class="task-form__submit add-btn " type="submit" [disabled]="todoForm.invalid || isCreating()">
     @if (isCreating()) {

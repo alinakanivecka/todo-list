@@ -63,10 +63,11 @@
   </section>
 
   <section class="todos-page__toolbar">
-    <!-- Here will be filters and sort -->
+    <app-task-filters (filterUpdated)="selectedFilter.set($event)"></app-task-filters>
+    <app-select [(ngModel)]="selectedSorting" [options]="taskPriorityOptions" placeholder="By priority" ariaLabel="Task priority"></app-select>
   </section>
 
-  @if(isLoading()) {
+  @if(isLoading() && tasks().length === 0) {
   <section class="loading-state state">
     @for (item of [1,2,3,4,5,6,7,8,9,10]; track item) {
     <div class="skeleton"></div>
@@ -80,7 +81,7 @@
       </div>
       <h2>{{errorMessage()}}</h2>
       <p>Check your connection and try again.</p>
-      <button type="button" class="refresh-btn" (click)="loadTasks()">
+      <button type="button" class="refresh-btn" (click)="loadTasks(selectedFilter(), this.selectedSorting()).subscribe()">
         <i class="fa-solid fa-rotate-right"></i>
         Try again</button>
     </div>
@@ -93,9 +94,6 @@
       </div>
       <h2>No tasks yet</h2>
       <p>Add your first task and start organizing your day.</p>
-      <button type="button" class="add-btn">
-        <i class="fa-solid fa-plus"></i>
-        Add first task</button>
     </div>
   </section>
   } @else {

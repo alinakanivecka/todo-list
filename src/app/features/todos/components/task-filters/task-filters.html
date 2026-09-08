@@ -1,1 +1,7 @@
-<p>task-filters works!</p>
+<div>
+  <div>
+    @for (filter of taskFilters; track filter) {
+    <button type="button" (click)="selectFilter(filter)">{{filter}}</button>
+    }
+  </div>
+</div>

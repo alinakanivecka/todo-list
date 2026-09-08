@@ -1,0 +1,31 @@
+.select-field {
+  width: 170px;
+  min-width: 170px;
+  flex: 0 0 170px;
+  margin-left: auto;
+  border-radius: 25px;
+
+  --mat-form-field-outlined-container-shape: 25px;
+  --mat-form-field-outlined-outline-color: var(--border);
+  --mat-form-field-outlined-hover-outline-color: var(--hover);
+  --mat-form-field-outlined-focus-outline-color: var(--primary);
+  --mat-form-field-outlined-focus-outline-width: 1px;
+  --mat-form-field-container-height: 50px;
+  --mat-form-field-container-vertical-padding: 13px;
+  --mat-select-enabled-trigger-text-color: var(--text);
+  --mat-select-placeholder-text-color: var(--muted);
+  --mat-select-enabled-arrow-color: var(--text);
+  --mat-select-focused-arrow-color: var(--primary);
+
+  &:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+  }
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}

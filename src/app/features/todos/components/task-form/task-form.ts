@@ -2,12 +2,12 @@ import { Component, inject, input, output } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaskPriority } from '../../types/task-priority.type';
 import { CreateTaskFormValue } from '../../types/task-from-value.type';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { Select } from '../select/select';
+import { SelectOption } from '../../models/select-option.model';
 
 @Component({
   selector: 'app-task-form',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule],
+  imports: [ReactiveFormsModule, Select],
   templateUrl: './task-form.html',
   styleUrl: './task-form.scss',
 })
@@ -16,7 +16,11 @@ export class TaskForm {
   readonly taskCreated = output<CreateTaskFormValue>();
   readonly isCreating = input(false);
   readonly createErrorMessage = input<string | null>(null);
-  protected readonly taskPriority = TaskPriority;
+  protected readonly taskPriorityOptions: SelectOption<TaskPriority>[] = [
+    { value: TaskPriority.Low, text: 'Low' },
+    { value: TaskPriority.Medium, text: 'Medium' },
+    { value: TaskPriority.High, text: 'High' },
+  ];
 
   protected readonly todoForm = this.formBuilder.group({
     todo: this.formBuilder.control('', {
