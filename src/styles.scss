@@ -119,7 +119,7 @@ textarea {
   }
 }
 
-.task-form-priority-panel.mat-mdc-select-panel {
+.select-panel.mat-mdc-select-panel {
   padding: 8px;
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -127,12 +127,16 @@ textarea {
   box-shadow: 0 14px 32px rgb(12 16 51 / 14%);
 }
 
-.task-form-priority-panel {
+.select-panel {
   .mat-mdc-option {
     min-height: 44px;
     margin-bottom: 3px;
     border-radius: 10px;
     color: var(--text);
+
+    &.mat-mdc-option-active.mdc-list-item {
+      background-color: var(--lavender);
+    }
 
     &:last-child {
       margin-bottom: 0;
