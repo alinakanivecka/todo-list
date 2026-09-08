@@ -1,1 +1,40 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f5f7fe;
+  --surface: #ffffff;
+  --text: #0c1033;
+  --muted: #59658e;
+  --primary: #6159f5;
+  --hover: #5148df;
+  --border: #dfe4f7;
+  --lavender: #ececff;
+  --highBg: #eae4ff;
+  --highText: #4b20d9;
+  --mediumBg: #e1ecff;
+  --mediumText: #0753e8;
+  --lowBg: #d2f5e9;
+  --lowText: #00865f;
+  --errorBg: #fde9ed;
+  --errorText: #bd2948;
+  --skeleton: #e6eaf5;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family: "Inter";
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
