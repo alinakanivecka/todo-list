@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Task } from '../../models/task.model';
 import { TaskItem } from "../task-item/task-item";
+import { Todo } from '../../models/todo-api.model';
 
 @Component({
   selector: 'app-task-list',
@@ -9,5 +9,5 @@ import { TaskItem } from "../task-item/task-item";
   styleUrl: './task-list.scss',
 })
 export class TaskList {
-  readonly tasks = input<Task[]>([])
+  readonly tasks = input<Todo[]>([])
 }

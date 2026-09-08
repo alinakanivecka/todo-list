@@ -1,7 +1,7 @@
 @if (task(); as task) {
 <article class="task-item" [class.task-item--completed]="task.completed">
-  <label class="task-item__checkbox-wrapper" [attr.for]="'task-' + task.clientId">
-    <input [id]="'task-' + task.clientId" class="task-item__checkbox" type="checkbox" [checked]="task.completed">
+  <label class="task-item__checkbox-wrapper" [attr.for]="'task-' + task.id">
+    <input [id]="'task-' + task.id" class="task-item__checkbox" type="checkbox" [checked]="task.completed">
 
     <span class="task-item__checkbox-icon" aria-hidden="true">
       @if (task.completed) {
@@ -12,14 +12,12 @@
 
   <div class="task-item__content">
     <p class="task-item__title">
-      {{ task.title }}
+      {{ task.todo }}
     </p>
   </div>
-
-  <span class="task-item__priority" [class.task-item__priority--high]="task.priority === 'high'"
-    [class.task-item__priority--medium]="task.priority === 'medium'"
-    [class.task-item__priority--low]="task.priority === 'low'">
-    {{ task.priority }}
+  
+  <span class="task-item__priority" [class]="priorityMetadata().className">
+    {{priorityMetadata().text}}
   </span>
 
   <div class="task-item__actions">

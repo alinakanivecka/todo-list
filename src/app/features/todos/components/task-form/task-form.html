@@ -1,0 +1,52 @@
+<form class="task-form" [formGroup]="todoForm" (ngSubmit)="submitForm()">
+  <div class="task-form__field">
+    <input class="task-form__input" type="text" placeholder="What needs to be done?" formControlName="todo">
+  </div>
+
+  <div class="task-form__error-slot">
+    @if(todoErrorMessage) {
+    <p class="task-form__error-text">{{todoErrorMessage}}</p>
+    }
+  </div>
+
+  <mat-form-field class="task-form__priority-field" appearance="outline" subscriptSizing="dynamic">
+    <mat-select formControlName="priority" placeholder="Priority" panelClass="task-form-priority-panel"
+      aria-label="Task priority">
+      <mat-option [value]="taskPriority.Low">
+        <span class="priority-option">
+          Low
+        </span>
+      </mat-option>
+
+      <mat-option [value]="taskPriority.Medium">
+        <span class="priority-option">
+          Medium
+        </span>
+      </mat-option>
+
+      <mat-option [value]="taskPriority.High">
+        <span class="priority-option">
+          High
+        </span>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button class="task-form__submit add-btn " type="submit" [disabled]="todoForm.invalid || isCreating()">
+    @if (isCreating()) {
+    <i class="fa-solid fa-spinner task-form__spinner" aria-hidden="true"></i>
+    Adding...
+    } @else {
+    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    Add task
+    }
+  </button>
+
+  @if (createErrorMessage()) {
+  <p class="task-form__request-error" role="alert">
+    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+
+    {{ createErrorMessage() }}
+  </p>
+  }
+</form>

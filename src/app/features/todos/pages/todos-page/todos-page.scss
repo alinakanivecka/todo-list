@@ -183,48 +183,6 @@
   }
 }
 
-.refresh-btn,
-.add-btn {
-  min-height: 44px;
-  padding: 15px 25px;
-  border: 0;
-  border-radius: 999px;
-  color: var(--surface);
-  background: var(--primary);
-  font-weight: 600;
-  margin-top: 20px;
-  cursor: pointer;
-  transition:
-    background-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-
-  i {
-    margin-right: 10px;
-  }
-
-  &:hover {
-    background: var(--hover);
-    box-shadow: 0 7px 16px rgb(97 89 245 / 25%);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:focus-visible {
-    outline: 3px solid rgb(97 89 245 / 30%);
-    outline-offset: 3px;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-    transform: none;
-  }
-}
-
 .loading-state {
   display: grid;
   grid-template-columns: 1fr;

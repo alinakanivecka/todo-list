@@ -1,10 +1,10 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { TodosApiService } from '../../../../core/api/todos-api.service';
-import type { Task } from '../../models/task.model';
-import type { Todo } from '../../models/todo-api.model';
+import type { Todo, TodoRequest } from '../../models/todo-api.model';
 import { finalize } from 'rxjs';
 import { TaskForm } from '../../components/task-form/task-form';
 import { TaskList } from '../../components/task-list/task-list';
+import { CreateTaskFormValue } from '../../types/task-from-value.type';
 
 type StatisticsState = 'loading' | 'placeholder' | 'value';
 
@@ -17,9 +17,12 @@ type StatisticsState = 'loading' | 'placeholder' | 'value';
 export class TodosPage implements OnInit {
   private readonly todosApi = inject(TodosApiService);
 
-  protected readonly tasks = signal<Task[]>([]);
+  protected readonly tasks = signal<Todo[]>([]);
+  private readonly taskForm = viewChild(TaskForm);
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly isCreating = signal(false);
+  protected readonly createErrorMessage = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadTasks();
@@ -45,6 +48,35 @@ export class TodosPage implements OnInit {
     () => this.tasks().filter((task) => task.completed).length,
   );
 
+  protected createTask(data: CreateTaskFormValue): void {
+    const todoRequest: TodoRequest = {
+      createdAt: new Date().toISOString(),
+      todo: data.todo,
+      priority: data.priority,
+      completed: false,
+    };
+
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isCreating.set(true);
+    this.createErrorMessage.set(null);
+
+    this.todosApi
+      .addTodo(todoRequest)
+      .pipe(finalize(() => this.isCreating.set(false)))
+      .subscribe({
+        next: (createdTodo) => {
+          this.tasks.update((tasks) => [createdTodo, ...tasks]);
+          this.taskForm()?.resetForm();
+        },
+        error: () => {
+          this.createErrorMessage.set('Couldn’t create the task.');
+        },
+      });
+  }
+
   protected loadTasks(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -53,23 +85,12 @@ export class TodosPage implements OnInit {
       .getTodos()
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: (response) => {
-          const tasks = response.todos.map((todo) => this.mapTodoToTask(todo));
-          this.tasks.set(tasks);
+        next: (todos) => {
+          this.tasks.set(todos);
         },
         error: () => {
           this.errorMessage.set('Couldn’t load your tasks');
         },
       });
-  }
-
-  private mapTodoToTask(todo: Todo): Task {
-    return {
-      clientId: `api-${todo.id}`,
-      apiId: todo.id,
-      title: todo.todo,
-      completed: todo.completed,
-      priority: 'medium',
-    };
   }
 }
