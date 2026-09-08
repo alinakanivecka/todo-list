@@ -3,7 +3,8 @@
     <h1>My tasks</h1>
   </header>
 
-  <app-task-form></app-task-form>
+  <app-task-form [isCreating]="isCreating()" [createErrorMessage]="createErrorMessage()"
+    (taskCreated)="createTask($event)"></app-task-form>
 
   <section class="todos-page__statistics">
     <div class="todos-page__statistic todos-page__statistic--total">

@@ -1,13 +1,16 @@
+import { TaskPriority } from '../types/task-priority.type';
+
 export interface Todo {
   id: number;
+  createdAt: string;
   todo: string;
   completed: boolean;
-  userId: number;
+  priority: TaskPriority;
 }
 
-export interface TodosResponse {
-  todos: Todo[];
-  total: number;
-  skip: number;
-  limit: number;
+export interface TodoRequest {
+  createdAt: string;
+  todo: string;
+  completed: boolean;
+  priority: TaskPriority;
 }
