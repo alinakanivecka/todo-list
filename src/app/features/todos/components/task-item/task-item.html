@@ -1,1 +1,39 @@
-<p>task-item works!</p>
+@if (task(); as task) {
+<article class="task-item" [class.task-item--completed]="task.completed">
+  <label class="task-item__checkbox-wrapper" [attr.for]="'task-' + task.clientId">
+    <input [id]="'task-' + task.clientId" class="task-item__checkbox" type="checkbox" [checked]="task.completed">
+
+    <span class="task-item__checkbox-icon" aria-hidden="true">
+      @if (task.completed) {
+      <i class="fa-solid fa-check"></i>
+      }
+    </span>
+  </label>
+
+  <div class="task-item__content">
+    <p class="task-item__title">
+      {{ task.title }}
+    </p>
+  </div>
+
+  <span class="task-item__priority" [class.task-item__priority--high]="task.priority === 'high'"
+    [class.task-item__priority--medium]="task.priority === 'medium'"
+    [class.task-item__priority--low]="task.priority === 'low'">
+    {{ task.priority }}
+  </span>
+
+  <div class="task-item__actions">
+    <button type="button" class="task-item__action" aria-label="Edit task">
+      <i class="fa-regular fa-pen-to-square"></i>
+    </button>
+
+    <button type="button" class="task-item__action" aria-label="Delete task">
+      <i class="fa-regular fa-trash-can"></i>
+    </button>
+
+    <button type="button" class="task-item__action" aria-label="More actions">
+      <i class="fa-solid fa-ellipsis"></i>
+    </button>
+  </div>
+</article>
+}

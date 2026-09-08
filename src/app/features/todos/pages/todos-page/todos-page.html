@@ -1,1 +1,103 @@
-<p>todos-page works!</p>
+<section class="todos-page">
+  <header class="todos-page__header">
+    <h1>My tasks</h1>
+  </header>
+
+  <app-task-form></app-task-form>
+
+  <section class="todos-page__statistics">
+    <div class="todos-page__statistic todos-page__statistic--total">
+      <div class="todos-page__statistic-icon" aria-hidden="true">
+        <i class="fa-solid fa-list"></i>
+      </div>
+      <div class="todos-page__statistic-content">
+        <p class="todos-page__statistic-label">Total</p>
+        <p class="todos-page__statistic-value">
+          @if (statisticsState() === 'loading') {
+          <span class="statistic__skeleton"></span>
+          } @else if (statisticsState() === 'placeholder') {
+          <i class="fa-solid fa-minus"></i>
+          } @else {
+          {{totalTasks()}}
+          }
+        </p>
+      </div>
+    </div>
+
+    <div class="todos-page__statistic todos-page__statistic--active">
+      <div class="todos-page__statistic-icon" aria-hidden="true">
+        <i class="fa-regular fa-circle"></i>
+      </div>
+      <div class="todos-page__statistic-content">
+        <p class="todos-page__statistic-label">Active</p>
+        <div class="todos-page__statistic-value">
+          @if (statisticsState() === 'loading') {
+          <span class="statistic__skeleton"></span>
+          } @else if (statisticsState() === 'placeholder') {
+          <i class="fa-solid fa-minus"></i>
+          } @else {
+          {{activeTasks()}}
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="todos-page__statistic todos-page__statistic--completed">
+      <div class="todos-page__statistic-icon" aria-hidden="true">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div class="todos-page__statistic-content">
+        <p class="todos-page__statistic-label">Completed</p>
+        <p class="todos-page__statistic-value">
+          @if (statisticsState() === 'loading') {
+          <span class="statistic__skeleton"></span>
+          } @else if (statisticsState() === 'placeholder') {
+          <i class="fa-solid fa-minus"></i>
+          } @else {
+          {{completedTasks()}}
+          }
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="todos-page__toolbar">
+    <!-- Here will be filters and sort -->
+  </section>
+
+  @if(isLoading()) {
+  <section class="loading-state state">
+    @for (item of [1,2,3,4,5,6,7,8,9,10]; track item) {
+    <div class="skeleton"></div>
+    }
+  </section>
+  } @else if (errorMessage()) {
+  <section class="error-state state">
+    <div class="error-message message">
+      <div class="state__icon state__icon--error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h2>{{errorMessage()}}</h2>
+      <p>Check your connection and try again.</p>
+      <button type="button" class="refresh-btn" (click)="loadTasks()">
+        <i class="fa-solid fa-rotate-right"></i>
+        Try again</button>
+    </div>
+  </section>
+  } @else if (tasks().length === 0) {
+  <section class="empty-state state">
+    <div class="empty-message message">
+      <div class="state__icon state__icon--empty">
+        <i class="fa-solid fa-inbox"></i>
+      </div>
+      <h2>No tasks yet</h2>
+      <p>Add your first task and start organizing your day.</p>
+      <button type="button" class="add-btn">
+        <i class="fa-solid fa-plus"></i>
+        Add first task</button>
+    </div>
+  </section>
+  } @else {
+  <app-task-list [tasks]="tasks()"></app-task-list>
+  }
+</section>

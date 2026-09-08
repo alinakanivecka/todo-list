@@ -1,1 +1,5 @@
-<p>task-list works!</p>
+<section class="tasks-list">
+  @for (task of tasks(); track task.clientId) {
+  <app-task-item [task]="task"></app-task-item>
+  }
+</section>
