@@ -12,9 +12,7 @@ export class TodosApiService {
   private readonly http = inject(HttpClient);
 
   getTodos(filter: TodoFilters, sort: TodoSort): Observable<Todo[]> {
-    let params = new HttpParams()
-      .set('sortBy', sort.field)
-      .set('order', sort.order);
+    let params = new HttpParams().set('sortBy', sort.field).set('order', sort.order);
 
     if (filter.completed !== undefined) {
       params = params.set('completed', filter.completed);
@@ -25,5 +23,13 @@ export class TodosApiService {
 
   addTodo(todoRequest: TodoRequest): Observable<Todo> {
     return this.http.post<Todo>(`${environment.apiUrl}/todos`, todoRequest);
+  }
+
+  updateTodo(id: number, todoRequest: TodoRequest): Observable<Todo> {
+    return this.http.put<Todo>(`${environment.apiUrl}/todos/${id}`, todoRequest);
+  }
+
+  removeTodo(id: number): Observable<Todo> {
+    return this.http.delete<Todo>(`${environment.apiUrl}/todos/${id}`);
   }
 }

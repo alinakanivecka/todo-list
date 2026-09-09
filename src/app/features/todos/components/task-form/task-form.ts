@@ -43,7 +43,7 @@ export class TaskForm {
     });
   }
 
-  public resetForm(): void {
+  resetForm(): void {
     this.todoForm.reset({
       todo: '',
       priority: TaskPriority.Medium,

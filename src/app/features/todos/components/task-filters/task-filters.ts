@@ -13,7 +13,7 @@ export class TaskFilters {
   protected readonly taskFilters: TaskFilter[] = ['All', 'Active', 'Completed'];
   protected readonly filterUpdated = output<TodoFilters>();
 
-  selectFilter(filter: TaskFilter) {
+  protected selectFilter(filter: TaskFilter) {
     this.selectedFilters.set(filter);
     this.filterUpdated.emit({
       completed: filter !== 'All' ? filter === 'Completed' : undefined,
