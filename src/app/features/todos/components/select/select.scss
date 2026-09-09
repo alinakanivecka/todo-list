@@ -1,13 +1,20 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .select-field {
   width: var(--select-field-width, 170px);
-  min-width: var(--select-field-width, 170px);
-  flex: 0 0 var(--select-field-width, 170px);
-  margin-left: auto;
+  min-width: 0;
+  max-width: 100%;
   border-radius: var(--select-field-radius, 25px);
+  background: var(--select-field-background, transparent);
 
+  --mat-select-trigger-text-size: var(--select-text-size, 15px);
+  --mat-select-trigger-text-weight: 500;
   --mat-form-field-outlined-container-shape: var(--select-field-radius, 25px);
   --mat-form-field-outlined-outline-color: var(--border);
-  --mat-form-field-outlined-hover-outline-color: var(--hover);
+  --mat-form-field-outlined-hover-outline-color: var(--primary-hover);
   --mat-form-field-outlined-focus-outline-color: var(--primary);
   --mat-form-field-outlined-focus-outline-width: 1px;
   --mat-form-field-container-height: var(--select-field-height, 50px);
@@ -23,9 +30,14 @@
   }
 }
 
+.select-sort-icon {
+  display: block;
+  margin-left: 20px;
+  margin-right: 12px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
 .select-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-weight: 500;
 }

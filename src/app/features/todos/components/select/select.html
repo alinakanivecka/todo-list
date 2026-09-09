@@ -1,4 +1,7 @@
 <mat-form-field class="select-field" appearance="outline" subscriptSizing="dynamic">
+  @if (showSortIcon()) {
+    <i matPrefix class="fa-solid fa-arrow-down-wide-short select-sort-icon" aria-hidden="true"></i>
+  }
   <mat-select [placeholder]="placeholder()" panelClass="select-panel"
     [aria-label]="ariaLabel()" [value]="value()" [disabled]="disabled()"
     (selectionChange)="selectValue($event.value)" (blur)="onTouched()">

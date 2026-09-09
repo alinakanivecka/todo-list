@@ -111,6 +111,7 @@ export class TodosPage {
 
   private loadTasks(filters: TodoFilters, sort: TodoSort): Observable<Todo[]> {
     this.isLoading.set(true);
+    this.errorMessage.set(null);
 
     return this.todosApi.getTodos(filters, sort).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -125,7 +126,6 @@ export class TodosPage {
       tap((todos: Todo[]) => this.tasks.set(todos)),
       finalize(() => {
         this.isLoading.set(false);
-        this.errorMessage.set(null);
       }),
     );
   }

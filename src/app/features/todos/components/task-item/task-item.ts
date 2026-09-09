@@ -173,6 +173,20 @@ export class TaskItem {
     this.isEditingMode.set(true);
   }
 
+  protected formatCreatedAt(value: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Date unavailable';
+    }
+
+    return new Intl.DateTimeFormat('en', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
+  }
+
   protected readonly priorityMetadata = computed<{ text: string; className: string }>(() => {
     const priority = this.task().priority;
 

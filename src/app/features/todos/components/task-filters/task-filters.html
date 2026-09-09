@@ -1,7 +1,8 @@
-<div>
-  <div>
+<div class="task-filters" role="group" aria-label="Filter tasks by status">
     @for (filter of taskFilters; track filter) {
-    <button type="button" (click)="selectFilter(filter)">{{filter}}</button>
+    <button class="task-filters__button" type="button"
+      [class.task-filters__button--active]="selectedFilters() === filter"
+      [attr.aria-pressed]="selectedFilters() === filter"
+      (click)="selectFilter(filter)">{{filter}}</button>
     }
-  </div>
 </div>
