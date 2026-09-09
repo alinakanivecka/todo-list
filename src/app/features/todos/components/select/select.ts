@@ -21,6 +21,7 @@ export class Select<TOptionValue> implements ControlValueAccessor {
   readonly options = input.required<SelectOption<TOptionValue>[]>();
   readonly placeholder = input.required<string>();
   readonly ariaLabel = input<string>('');
+  readonly showSortIcon = input(false);
 
   protected readonly value = signal<TOptionValue | null>(null);
   protected readonly disabled = signal(false);

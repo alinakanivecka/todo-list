@@ -64,7 +64,7 @@
 
   <section class="todos-page__toolbar">
     <app-task-filters (filterUpdated)="selectedFilter.set($event)"></app-task-filters>
-    <app-select [(ngModel)]="selectedSorting" [options]="taskPriorityOptions" placeholder="By priority"
+    <app-select class="todos-page__sort" [showSortIcon]="true" [(ngModel)]="selectedSorting" [options]="taskPriorityOptions" placeholder="By priority"
       ariaLabel="Task priority"></app-select>
   </section>
 

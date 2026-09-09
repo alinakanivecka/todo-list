@@ -24,6 +24,11 @@
     }
   </div>
 
+  <time class="task-item__date" [attr.datetime]="task.createdAt">
+    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+    {{ formatCreatedAt(task.createdAt) }}
+  </time>
+
   <span class="task-item__priority" [class]="priorityMetadata().className">
     {{priorityMetadata().text}}
   </span>
@@ -46,8 +51,8 @@
     <div class="task-editor__fields">
       <div class="task-editor__field">
         <label class="task-editor__label" [for]="'edit-name-' + task.id">Task name</label>
-        <input class="task-editor__input" type="text" [id]="'edit-name-' + task.id" formControlName="todo"
-          [attr.aria-invalid]="!!todoErrorMessage"
+        <input class="task-editor__input" type="text" [id]="'edit-name-' + task.id"
+          [formControl]="editForm.controls.todo" [attr.aria-invalid]="!!todoErrorMessage"
           [attr.aria-describedby]="todoErrorMessage ? 'edit-error-' + task.id : null">
         @if(todoErrorMessage) {
         <p class="task-editor__error" [id]="'edit-error-' + task.id" role="alert">{{todoErrorMessage}}</p>
@@ -55,8 +60,8 @@
       </div>
       <div class="task-editor__field">
         <span class="task-editor__label" aria-hidden="true">Priority</span>
-        <app-select class="task-editor__select" formControlName="priority" [options]="taskPriorityOptions"
-          placeholder="Priority" ariaLabel="Task priority"></app-select>
+        <app-select class="task-editor__select" [formControl]="editForm.controls.priority"
+          [options]="taskPriorityOptions" placeholder="Priority" ariaLabel="Task priority"></app-select>
       </div>
     </div>
     @if(errorMessage()) {

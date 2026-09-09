@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  max-width: 100%;
+}
+
+.task-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(328px, 100%);
+  min-height: 50px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+
+  &__button {
+    min-height: 36px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+    cursor: pointer;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+
+    &:hover:not(&--active) {
+      background: var(--lavender);
+      color: var(--primary);
+    }
+
+    &--active {
+      background: var(--primary);
+      color: var(--surface);
+      box-shadow: 0 2px 5px rgb(97 89 245 / 12%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .task-filters {
+    width: 100%;
+  }
+}

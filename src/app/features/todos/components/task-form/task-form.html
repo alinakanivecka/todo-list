@@ -1,17 +1,23 @@
 <form class="task-form" [formGroup]="todoForm" (ngSubmit)="submitForm()">
   <div class="task-form__field">
-    <input class="task-form__input" type="text" placeholder="What needs to be done?" formControlName="todo">
+    <label class="visually-hidden" for="new-task-title">
+      Task title
+    </label>
+    <input id="new-task-title" class="task-form__input" type="text" placeholder="What needs to be done?"
+      [formControl]="todoForm.controls.todo" [attr.aria-invalid]="!!todoErrorMessage"
+      [attr.aria-describedby]="todoErrorMessage ? 'new-task-title-error' : null">
   </div>
 
   <div class="task-form__error-slot">
     @if(todoErrorMessage) {
-    <p class="task-form__error-text">{{todoErrorMessage}}</p>
+    <p id="new-task-title-error" class="task-form__error-text" role="alert">{{todoErrorMessage}}</p>
     }
   </div>
 
-  <app-select formControlName="priority" [options]="taskPriorityOptions" placeholder="Priority" ariaLabel="Task priority"></app-select>
+  <app-select [formControl]="todoForm.controls.priority" [options]="taskPriorityOptions" placeholder="Priority"
+    ariaLabel="Task priority"></app-select>
 
-  <button class="task-form__submit add-btn " type="submit" [disabled]="todoForm.invalid || isCreating()">
+  <button class="task-form__submit add-btn" type="submit" [disabled]="todoForm.invalid || isCreating()">
     @if (isCreating()) {
     <i class="fa-solid fa-spinner task-form__spinner" aria-hidden="true"></i>
     Adding...

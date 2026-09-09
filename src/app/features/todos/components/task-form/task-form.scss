@@ -31,14 +31,14 @@
   }
 
   &__field:has(.task-form__input.ng-invalid.ng-touched) {
-    border-color: var(--errorText);
+    border-color: var(--error-text);
 
     &:focus-within {
       box-shadow: 0 0 0 4px rgb(189 41 72 / 10%);
     }
 
     .task-form__input:focus-visible {
-      outline-color: var(--errorText);
+      outline-color: var(--error-text);
     }
   }
 
@@ -60,7 +60,7 @@
     }
 
     &:hover {
-      outline: 1px solid var(--hover);
+      outline: 1px solid var(--primary-hover);
     }
 
     &:focus-visible {
@@ -71,36 +71,33 @@
 
   &__error-slot {
     position: absolute;
-    top: calc(100% - 10px);
+    top: calc(100% - 8px);
     left: 30px;
-    z-index: 10;
+    z-index: 1;
     max-width: calc(100% - 60px);
   }
 
   &__error-text {
     position: relative;
     margin: 0;
-    padding: 10px 14px;
-    border: 1px solid var(--errorBg);
-    border-radius: 12px;
-    background: var(--errorBg);
-    color: var(--errorText);
-    box-shadow: 0 6px 18px rgb(12 16 51 / 8%);
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--error-bg);
+    color: var(--error-text);
     font-size: 13px;
-    font-weight: 500;
-    line-height: 1.4;
+    line-height: 1.5;
     overflow-wrap: anywhere;
 
     &::before {
-      content: "";
       position: absolute;
       top: -5px;
       left: 20px;
       width: 8px;
       height: 8px;
-      background: var(--errorBg);
-      border-top: 1px solid var(--errorBg);
-      border-left: 1px solid var(--errorBg);
+      border-top: 1px solid var(--error-bg);
+      border-left: 1px solid var(--error-bg);
+      background: var(--error-bg);
+      content: "";
       transform: rotate(45deg);
     }
   }
@@ -131,8 +128,8 @@
     margin: 0;
     padding: 8px 12px;
     border-radius: 10px;
-    color: var(--errorText);
-    background: var(--errorBg);
+    color: var(--error-text);
+    background: var(--error-bg);
     font-size: 13px;
     font-weight: 500;
 
@@ -143,10 +140,49 @@
       right: 20px;
       width: 8px;
       height: 8px;
-      background: var(--errorBg);
-      border-top: 1px solid var(--errorBg);
-      border-left: 1px solid var(--errorBg);
+      background: var(--error-bg);
+      border-top: 1px solid var(--error-bg);
+      border-left: 1px solid var(--error-bg);
       transform: rotate(45deg);
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .task-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    border-radius: 20px;
+
+    &__field {
+      grid-column: 1 / -1;
+    }
+
+    &__error-slot,
+    &__request-error {
+      position: static;
+      grid-column: 1 / -1;
+      max-width: none;
+    }
+
+    &__error-slot:empty {
+      display: none;
+    }
+
+    &__request-error::before {
+      display: none;
+    }
+
+    &__submit {
+      width: 100%;
+      min-width: 0;
+    }
+
+    app-select {
+      display: block;
+      width: 100%;
+      --select-field-width: 100%;
     }
   }
 }

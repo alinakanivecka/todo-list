@@ -52,8 +52,8 @@
     margin-bottom: 20px;
     place-items: center;
     border-radius: 18px;
-    background: var(--errorBg);
-    color: var(--errorText);
+    background: var(--error-bg);
+    color: var(--error-text);
     font-size: 23px;
   }
 
@@ -95,7 +95,7 @@
 
   &__error {
     margin: 16px 0 0;
-    color: var(--errorText);
+    color: var(--error-text);
     font-size: 13px;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -130,11 +130,11 @@
 
     &--delete {
       border-color: transparent;
-      background: var(--errorText);
+      background: var(--error-text);
       color: var(--surface);
 
       &:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--errorText), black 12%);
+        background: color-mix(in srgb, var(--error-text), black 12%);
       }
     }
   }
@@ -147,15 +147,5 @@
   button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  }
-}
-
-@media (max-width: 380px) {
-  .delete-dialog__content {
-    padding: 24px;
-  }
-
-  .delete-dialog__actions {
-    flex-direction: column;
   }
 }
