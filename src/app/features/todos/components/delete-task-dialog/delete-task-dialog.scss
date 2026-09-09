@@ -1,33 +1,18 @@
-:host {
-  display: contents;
-}
-
 .delete-dialog {
-  width: min(440px, calc(100vw - 32px));
-  max-height: calc(100dvh - 32px);
-  margin: auto;
-  padding: 0;
-  overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface);
+  position: relative;
   color: var(--text);
-  box-shadow: 0 24px 80px rgb(12 16 51 / 20%);
 
-  &::backdrop {
-    background: rgb(12 16 51 / 38%);
-    backdrop-filter: blur(4px);
-  }
-
-  &__content {
-    position: relative;
-    padding: 32px;
+  &__content.mat-mdc-dialog-content {
+    max-height: none;
+    padding: 32px 32px 0;
+    color: var(--text);
   }
 
   &__close {
     position: absolute;
     top: 16px;
     right: 16px;
+    z-index: 1;
     display: grid;
     width: 36px;
     height: 36px;
@@ -40,8 +25,13 @@
     cursor: pointer;
 
     &:hover:not(:disabled) {
-      background: var(--lavender);
-      color: var(--primary);
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--error-text);
+      outline-offset: 3px;
     }
   }
 
@@ -57,16 +47,17 @@
     font-size: 23px;
   }
 
-  &__title {
+  &__title.mat-mdc-dialog-title {
+    min-height: auto;
     margin: 0 0 10px;
+    padding: 0;
+    color: var(--text);
     font-size: 24px;
     font-weight: 700;
     line-height: 1.3;
-    letter-spacing: -0.5px;
   }
 
   &__description {
-    margin: 0;
     color: var(--muted);
     font-size: 14px;
     line-height: 1.65;
@@ -80,7 +71,7 @@
     background: var(--bg);
 
     p {
-      margin: 4px 0 0;
+      margin-top: 4px;
       font-size: 14px;
       font-weight: 600;
       line-height: 1.5;
@@ -94,17 +85,15 @@
   }
 
   &__error {
-    margin: 16px 0 0;
+    margin-top: 16px;
     color: var(--error-text);
     font-size: 13px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
   }
 
-  &__actions {
-    display: flex;
+  &__actions.mat-mdc-dialog-actions {
     gap: 12px;
-    margin-top: 28px;
+    min-height: auto;
+    padding: 28px 32px 32px;
   }
 
   &__button {
@@ -117,14 +106,13 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 160ms ease;
 
     &--cancel {
       background: var(--surface);
       color: var(--text);
 
       &:hover:not(:disabled) {
-        background: var(--lavender);
+        background: var(--bg);
       }
     }
 
@@ -134,18 +122,36 @@
       color: var(--surface);
 
       &:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--error-text), black 12%);
+        background: var(--error-hover);
       }
     }
-  }
 
-  button:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 3px;
-  }
+    &:focus-visible {
+      outline: 2px solid var(--text);
+      outline-offset: 3px;
+    }
 
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    &--delete:focus-visible {
+      outline-color: var(--error-text);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 440px) {
+  .delete-dialog {
+    &__content.mat-mdc-dialog-content {
+      padding: 24px 24px 0;
+    }
+
+    &__actions.mat-mdc-dialog-actions {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      padding: 24px;
+    }
   }
 }

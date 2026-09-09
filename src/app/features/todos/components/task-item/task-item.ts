@@ -1,21 +1,34 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Todo, TodoRequest } from '../../models/todo-api.model';
-import { TaskPriority } from '../../types/task-priority.type';
+import { TaskPriority } from '../../types/task-priority.enum';
 import { Select } from '../select/select';
 import { SelectOption } from '../../models/select-option.model';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { TodosApiService } from '../../../../core/api/todos-api.service';
-import { DeleteTaskDialog } from '../delete-task-dialog/delete-task-dialog';
+import { DeleteTaskDialog, DeleteTaskDialogData } from '../delete-task-dialog/delete-task-dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-task-item',
-  imports: [Select, ReactiveFormsModule, DeleteTaskDialog],
+  imports: [Select, ReactiveFormsModule, MatDialogModule],
   templateUrl: './task-item.html',
   styleUrl: './task-item.scss',
 })
 export class TaskItem {
   private readonly todosApi = inject(TodosApiService);
+  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly taskPriority = TaskPriority;
 
   readonly task = input.required<Todo>();
@@ -24,12 +37,9 @@ export class TaskItem {
 
   protected readonly completed = signal(false);
   protected readonly isEditingMode = signal(false);
-  protected readonly isLoading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isDeleting = signal(false);
-  protected readonly deleteErrorMessage = signal<string | null>(null);
-  protected readonly errorMessageCompleted = signal<string | null>(null);
-  protected readonly isDeleteDialogOpen = signal(false);
+  protected readonly isUpdating = signal(false);
+  protected readonly updateErrorMessage = signal<string | null>(null);
+  protected readonly checkboxUpdateErrorMessage = signal<string | null>(null);
 
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
@@ -56,39 +66,8 @@ export class TaskItem {
     priority: this.formBuilder.control<TaskPriority>(TaskPriority.Medium),
   });
 
-  protected openDeleteDialog(): void {
-    if (this.isLoading() || this.isDeleting()) return;
-
-    this.deleteErrorMessage.set(null);
-    this.isDeleteDialogOpen.set(true);
-  }
-
-  protected closeDeleteDialog(): void {
-    if (this.isDeleting()) return;
-
-    this.isDeleteDialogOpen.set(false);
-  }
-
-  protected removeTodo() {
-    this.isDeleting.set(true);
-    this.deleteErrorMessage.set(null);
-
-    this.todosApi
-      .removeTodo(this.task().id)
-      .pipe(finalize(() => this.isDeleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.isDeleteDialogOpen.set(false);
-          this.itemDeleted.emit();
-        },
-        error: () => {
-          this.deleteErrorMessage.set('Couldn`t delete the task. Please try again.');
-        },
-      });
-  }
-
   protected updateCompleted(checkbox: HTMLInputElement) {
-    if (this.isLoading()) {
+    if (this.isUpdating()) {
       checkbox.checked = this.completed();
       return;
     }
@@ -103,12 +82,15 @@ export class TaskItem {
     const previousCompleted = this.completed();
 
     this.completed.set(checkbox.checked);
-    this.isLoading.set(true);
-    this.errorMessageCompleted.set(null);
+    this.isUpdating.set(true);
+    this.checkboxUpdateErrorMessage.set(null);
 
     this.todosApi
       .updateTodo(this.task().id, todoRequest)
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isUpdating.set(false)),
+      )
       .subscribe({
         next: () => {
           this.itemUpdated.emit();
@@ -116,9 +98,17 @@ export class TaskItem {
         error: () => {
           this.completed.set(previousCompleted);
           checkbox.checked = previousCompleted;
-          this.errorMessageCompleted.set('Couldn’t update task status. Please try again.');
+          this.checkboxUpdateErrorMessage.set('Couldn’t update task status. Please try again.');
         },
       });
+  }
+
+  protected startEditing(): void {
+    if (this.isUpdating()) return;
+
+    this.updateErrorMessage.set(null);
+    this.checkboxUpdateErrorMessage.set(null);
+    this.isEditingMode.set(true);
   }
 
   protected updateTodo(): void {
@@ -136,23 +126,26 @@ export class TaskItem {
       completed: this.completed(),
     };
 
-    if (this.isLoading()) {
+    if (this.isUpdating()) {
       return;
     }
 
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
+    this.isUpdating.set(true);
+    this.updateErrorMessage.set(null);
 
     this.todosApi
       .updateTodo(this.task().id, todoRequest)
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isUpdating.set(false)),
+      )
       .subscribe({
         next: () => {
           this.isEditingMode.set(false);
           this.itemUpdated.emit();
         },
         error: () => {
-          this.errorMessage.set('Couldn’t edit the task.');
+          this.updateErrorMessage.set('Couldn’t edit the task.');
         },
       });
   }
@@ -165,12 +158,27 @@ export class TaskItem {
     });
   }
 
-  protected startEditing(): void {
-    if (this.isLoading()) return;
+  protected openDeleteDialog(): void {
+    if (this.isUpdating()) return;
 
-    this.errorMessage.set(null);
-    this.errorMessageCompleted.set(null);
-    this.isEditingMode.set(true);
+    const task = this.task();
+    const dialogRef = this.dialog.open<DeleteTaskDialog, DeleteTaskDialogData, boolean>(
+      DeleteTaskDialog,
+      {
+        width: '440px',
+        maxWidth: 'calc(100vw - 32px)',
+        panelClass: 'delete-task-dialog-panel',
+        data: { taskId: task.id, taskTitle: task.todo },
+        autoFocus: '.delete-dialog__button--cancel',
+        restoreFocus: true,
+        ariaLabelledBy: 'delete-task-title',
+        ariaDescribedBy: 'delete-task-description',
+      },
+    );
+
+    dialogRef.afterClosed().subscribe((deleted) => {
+      if (deleted) this.itemDeleted.emit();
+    });
   }
 
   protected formatCreatedAt(value: string): string {

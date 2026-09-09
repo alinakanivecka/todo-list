@@ -1,9 +1,13 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TaskPriority } from '../../types/task-priority.type';
-import { CreateTaskFormValue } from '../../types/task-from-value.type';
+import { TaskPriority } from '../../types/task-priority.enum';
+import { CreateTaskFormValue } from '../../types/task-form-value.type';
 import { Select } from '../select/select';
 import { SelectOption } from '../../models/select-option.model';
+import { finalize } from 'rxjs';
+import { TodoRequest } from '../../models/todo-api.model';
+import { TodosApiService } from '../../../../core/api/todos-api.service';
 
 @Component({
   selector: 'app-task-form',
@@ -12,10 +16,13 @@ import { SelectOption } from '../../models/select-option.model';
   styleUrl: './task-form.scss',
 })
 export class TaskForm {
+  private readonly todosApi = inject(TodosApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  readonly taskCreated = output<CreateTaskFormValue>();
-  readonly isCreating = input(false);
-  readonly createErrorMessage = input<string | null>(null);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly taskCreated = output<void>();
+  protected readonly isCreating = signal(false);
+  protected readonly createErrorMessage = signal<string | null>(null);
+
   protected readonly taskPriorityOptions: SelectOption<TaskPriority>[] = [
     { value: TaskPriority.Low, text: 'Low' },
     { value: TaskPriority.Medium, text: 'Medium' },
@@ -37,17 +44,7 @@ export class TaskForm {
 
     const formValue = this.todoForm.getRawValue();
 
-    this.taskCreated.emit({
-      todo: formValue.todo.trim(),
-      priority: formValue.priority,
-    });
-  }
-
-  resetForm(): void {
-    this.todoForm.reset({
-      todo: '',
-      priority: TaskPriority.Medium,
-    });
+    this.createTask({ todo: formValue.todo.trim(), priority: formValue.priority });
   }
 
   get todoErrorMessage(): string | null {
@@ -66,5 +63,44 @@ export class TaskForm {
     }
 
     return null;
+  }
+
+  protected createTask(data: CreateTaskFormValue): void {
+    const todoRequest: TodoRequest = {
+      createdAt: new Date().toISOString(),
+      todo: data.todo,
+      priority: data.priority,
+      completed: false,
+    };
+
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isCreating.set(true);
+    this.createErrorMessage.set(null);
+
+    this.todosApi
+      .addTodo(todoRequest)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isCreating.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.resetForm();
+          this.taskCreated.emit()
+        },
+        error: () => {
+          this.createErrorMessage.set('Couldn’t create the task.');
+        },
+      });
+  }
+
+  private resetForm(): void {
+    this.todoForm.reset({
+      todo: '',
+      priority: TaskPriority.Medium,
+    });
   }
 }

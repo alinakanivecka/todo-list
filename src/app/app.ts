@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TodosPage } from './features/todos/pages/todos-page/todos-page';
 
 @Component({

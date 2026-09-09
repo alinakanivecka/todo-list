@@ -1,4 +1,4 @@
-import { TaskPriority } from '../types/task-priority.type';
+import { TaskPriority } from '../types/task-priority.enum';
 
 export interface Todo {
   id: number;

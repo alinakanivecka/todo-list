@@ -3,10 +3,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SelectOption } from '../../models/select-option.model';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-select',
-  imports: [MatFormFieldModule, MatSelectModule],
+  imports: [MatFormFieldModule, MatSelectModule, NgClass],
   templateUrl: './select.html',
   styleUrl: './select.scss',
   providers: [
@@ -21,12 +22,15 @@ export class Select<TOptionValue> implements ControlValueAccessor {
   readonly options = input.required<SelectOption<TOptionValue>[]>();
   readonly placeholder = input.required<string>();
   readonly ariaLabel = input<string>('');
-  readonly showSortIcon = input(false);
+  readonly icon = input('');
 
   protected readonly value = signal<TOptionValue | null>(null);
   protected readonly disabled = signal(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private onChange: (value: TOptionValue | null) => void = () => {};
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   protected onTouched: () => void = () => {};
 
   writeValue(value: TOptionValue | null): void {

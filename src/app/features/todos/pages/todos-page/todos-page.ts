@@ -1,9 +1,9 @@
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TodosApiService } from '../../../../core/api/todos-api.service';
-import type { Todo, TodoRequest } from '../../models/todo-api.model';
-import { catchError, EMPTY, finalize, Observable, of, switchMap, tap } from 'rxjs';
+import type { Todo } from '../../models/todo-api.model';
+import { catchError, EMPTY, finalize, Observable, of, tap } from 'rxjs';
 import { TaskForm } from '../../components/task-form/task-form';
-import { CreateTaskFormValue } from '../../types/task-from-value.type';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Select } from '../../components/select/select';
 import { SelectOption } from '../../models/select-option.model';
@@ -13,8 +13,6 @@ import { TodoFilters } from '../../models/todo-filters.model';
 import { FormsModule } from '@angular/forms';
 import { TaskItem } from '../../components/task-item/task-item';
 
-type StatisticsState = 'loading' | 'placeholder' | 'value';
-
 @Component({
   selector: 'app-todos-page',
   imports: [TaskForm, Select, TaskFilters, FormsModule, TaskItem],
@@ -23,13 +21,13 @@ type StatisticsState = 'loading' | 'placeholder' | 'value';
 })
 export class TodosPage {
   private readonly todosApi = inject(TodosApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly taskPriorityOptions: SelectOption<TodoSort>[] = [
     { value: { field: 'priority', order: 'asc' }, text: 'low-to-high' },
     { value: { field: 'priority', order: 'desc' }, text: 'high-to-low' },
   ];
 
-  private readonly taskForm = viewChild(TaskForm);
   protected readonly tasks = signal<Todo[]>([]);
   protected readonly selectedFilter = signal<TodoFilters>({});
   protected readonly selectedSorting = signal<TodoSort>(this.taskPriorityOptions[0].value);
@@ -37,66 +35,10 @@ export class TodosPage {
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
-  protected readonly isCreating = signal(false);
-  protected readonly createErrorMessage = signal<string | null>(null);
-
-  protected readonly statisticsState = computed<StatisticsState>(() => {
-    if (this.isLoading() && this.tasks().length === 0) {
-      return 'loading';
-    }
-
-    if (this.errorMessage() || this.tasks().length === 0) {
-      return 'placeholder';
-    }
-
-    return 'value';
-  });
-
-  protected readonly totalTasks = computed(() => this.tasks().length);
-
-  protected readonly activeTasks = computed(
-    () => this.tasks().filter((task) => !task.completed).length,
-  );
-
-  protected readonly completedTasks = computed(
-    () => this.tasks().filter((task) => task.completed).length,
-  );
-
   constructor() {
     effect(() => {
       this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
     });
-  }
-
-  protected createTask(data: CreateTaskFormValue): void {
-    const todoRequest: TodoRequest = {
-      createdAt: new Date().toISOString(),
-      todo: data.todo,
-      priority: data.priority,
-      completed: false,
-    };
-
-    if (this.isCreating()) {
-      return;
-    }
-
-    this.isCreating.set(true);
-    this.createErrorMessage.set(null);
-
-    this.todosApi
-      .addTodo(todoRequest)
-      .pipe(
-        finalize(() => this.isCreating.set(false)),
-        switchMap(() => {
-          this.taskForm()?.resetForm();
-          return this.loadTasks(this.selectedFilter(), this.selectedSorting());
-        }),
-      )
-      .subscribe({
-        error: () => {
-          this.createErrorMessage.set('Couldn’t create the task.');
-        },
-      });
   }
 
   protected retryLoadTasks(): void {
@@ -105,7 +47,7 @@ export class TodosPage {
     this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
   }
 
-  protected onItemUpdate() {
+  protected refreshTaskList() {
     this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
   }
 
@@ -114,6 +56,7 @@ export class TodosPage {
     this.errorMessage.set(null);
 
     return this.todosApi.getTodos(filters, sort).pipe(
+      takeUntilDestroyed(this.destroyRef),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 404) {
           return of([]);

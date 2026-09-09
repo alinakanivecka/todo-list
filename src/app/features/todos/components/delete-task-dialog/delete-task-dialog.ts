@@ -1,33 +1,52 @@
-import { afterNextRender, Component, ElementRef, input, output, viewChild } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { finalize } from 'rxjs';
+import { TodosApiService } from '../../../../core/api/todos-api.service';
+
+export interface DeleteTaskDialogData {
+  taskId: number;
+  taskTitle: string;
+}
 
 @Component({
   selector: 'app-delete-task-dialog',
+  imports: [MatDialogModule],
   templateUrl: './delete-task-dialog.html',
   styleUrl: './delete-task-dialog.scss',
 })
 export class DeleteTaskDialog {
-  readonly taskTitle = input('');
-  readonly isLoading = input(false);
-  readonly errorMessage = input<string | null>(null);
-  readonly confirmed = output<void>();
-  readonly cancelled = output<void>();
+  protected readonly data = inject<DeleteTaskDialogData>(MAT_DIALOG_DATA);
+  protected readonly isLoading = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
 
-  private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialogRef = inject(MatDialogRef<DeleteTaskDialog, boolean>);
+  private readonly todosApi = inject(TodosApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor() {
-    afterNextRender(() => this.dialog().nativeElement.showModal());
-  }
-
-  protected cancel(event?: Event): void {
-    event?.preventDefault();
-    if (!this.isLoading()) {
-      this.cancelled.emit();
-    }
+  protected cancel(): void {
+    if (!this.isLoading()) this.dialogRef.close(false);
   }
 
   protected confirm(): void {
-    if (!this.isLoading()) {
-      this.confirmed.emit();
-    }
+    if (this.isLoading()) return;
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    this.dialogRef.disableClose = true;
+
+    this.todosApi
+      .removeTodo(this.data.taskId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isLoading.set(false);
+          this.dialogRef.disableClose = false;
+        }),
+      )
+      .subscribe({
+        next: () => this.dialogRef.close(true),
+        error: () => this.errorMessage.set('Couldn’t delete the task. Please try again.'),
+      });
   }
 }
