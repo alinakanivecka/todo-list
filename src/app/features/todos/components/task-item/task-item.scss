@@ -172,3 +172,150 @@
     }
   }
 }
+
+.task-item.task-item--editing {
+  display: block;
+  padding: 16px 20px;
+  border-color: #d8d2ff;
+  border-radius: 18px;
+  box-shadow: none;
+  transform: none;
+}
+
+.task-editor {
+  display: grid;
+  gap: 16px;
+
+  &__heading {
+    margin: 0 0 -6px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  &__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  &__field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__label,
+  &__hint {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  &__input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--text);
+    caret-color: var(--primary);
+    font: inherit;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+
+    &:hover {
+      border-color: var(--hover);
+    }
+
+    &:focus {
+      border-color: var(--primary);
+      outline: 2px solid var(--primary);
+      outline-offset: 3px;
+      box-shadow: 0 0 0 4px rgb(97 89 245 / 10%);
+    }
+
+    &[aria-invalid="true"] {
+      border-color: var(--errorText);
+      outline-color: var(--errorText);
+      box-shadow: none;
+    }
+  }
+
+  &__select {
+    display: block;
+    min-width: 0;
+    --select-field-width: 100%;
+    --select-field-radius: 14px;
+    --select-field-height: 44px;
+    --select-field-padding: 10px;
+  }
+
+  &__error {
+    margin: 4px 0 0;
+    color: var(--errorText);
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__error--request {
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__button {
+    min-height: 40px;
+    padding: 9px 20px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 160ms ease,
+      opacity 160ms ease;
+
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 3px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__button--save {
+    border-color: transparent;
+    background: var(--primary);
+    color: var(--surface);
+
+    &:hover:not(:disabled) {
+      background: var(--hover);
+    }
+  }
+
+  &__button--cancel {
+    background: var(--surface);
+    color: var(--text);
+
+    &:hover {
+      background: var(--lavender);
+    }
+  }
+}

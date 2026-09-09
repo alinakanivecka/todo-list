@@ -1,10 +1,12 @@
 @if (task(); as task) {
-<article class="task-item" [class.task-item--completed]="task.completed">
+<article class="task-item" [class.task-item--completed]="completed()" [class.task-item--editing]="isEditingMode()">
+  @if(!isEditingMode()) {
   <label class="task-item__checkbox-wrapper" [attr.for]="'task-' + task.id">
-    <input [id]="'task-' + task.id" class="task-item__checkbox" type="checkbox" [checked]="task.completed">
+    <input #checkbox [id]="'task-' + task.id" class="task-item__checkbox" type="checkbox" [checked]="completed()"
+      [disabled]="isLoading()" (change)="updateCompleted(checkbox)">
 
     <span class="task-item__checkbox-icon" aria-hidden="true">
-      @if (task.completed) {
+      @if (completed()) {
       <i class="fa-solid fa-check"></i>
       }
     </span>
@@ -14,24 +16,64 @@
     <p class="task-item__title">
       {{ task.todo }}
     </p>
+
+    @if (errorMessageCompleted()) {
+    <p class="task-editor__error" role="alert">
+      {{ errorMessageCompleted() }}
+    </p>
+    }
   </div>
-  
+
   <span class="task-item__priority" [class]="priorityMetadata().className">
     {{priorityMetadata().text}}
   </span>
 
   <div class="task-item__actions">
-    <button type="button" class="task-item__action" aria-label="Edit task">
+    <button type="button" class="task-item__action" aria-label="Edit task" [disabled]="isLoading() || isEditingMode()"
+      (click)="startEditing()">
       <i class="fa-regular fa-pen-to-square"></i>
     </button>
 
-    <button type="button" class="task-item__action" aria-label="Delete task">
+    <button type="button" class="task-item__action" aria-label="Delete task" [disabled]="isLoading() || isDeleting()"
+      (click)="openDeleteDialog()">
       <i class="fa-regular fa-trash-can"></i>
     </button>
-
-    <button type="button" class="task-item__action" aria-label="More actions">
-      <i class="fa-solid fa-ellipsis"></i>
-    </button>
   </div>
+  } @else {
+  <form class="task-editor" [formGroup]="editForm" (ngSubmit)="updateTodo()"
+    [attr.aria-labelledby]="'edit-heading-' + task.id" [attr.aria-busy]="isLoading()">
+    <h2 class="task-editor__heading" [id]="'edit-heading-' + task.id">Edit task</h2>
+    <div class="task-editor__fields">
+      <div class="task-editor__field">
+        <label class="task-editor__label" [for]="'edit-name-' + task.id">Task name</label>
+        <input class="task-editor__input" type="text" [id]="'edit-name-' + task.id" formControlName="todo"
+          [attr.aria-invalid]="!!todoErrorMessage"
+          [attr.aria-describedby]="todoErrorMessage ? 'edit-error-' + task.id : null">
+        @if(todoErrorMessage) {
+        <p class="task-editor__error" [id]="'edit-error-' + task.id" role="alert">{{todoErrorMessage}}</p>
+        }
+      </div>
+      <div class="task-editor__field">
+        <span class="task-editor__label" aria-hidden="true">Priority</span>
+        <app-select class="task-editor__select" formControlName="priority" [options]="taskPriorityOptions"
+          placeholder="Priority" ariaLabel="Task priority"></app-select>
+      </div>
+    </div>
+    @if(errorMessage()) {
+    <p class="task-editor__error task-editor__error--request" role="alert">{{errorMessage()}}</p>
+    }
+    <div class="task-editor__actions">
+      <button class="task-editor__button task-editor__button--save" type="submit"
+        [disabled]="editForm.invalid || isLoading()">{{isLoading() ? 'Saving...' : 'Save changes'}}</button>
+      <button class="task-editor__button task-editor__button--cancel" type="button" [disabled]="isLoading()"
+        (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+  }
 </article>
+}
+
+@if (isDeleteDialogOpen()) {
+<app-delete-task-dialog (cancelled)="closeDeleteDialog()" (confirmed)="removeTodo()" [taskTitle]="task().todo"
+  [isLoading]="isDeleting()" [errorMessage]="deleteErrorMessage()"></app-delete-task-dialog>
 }

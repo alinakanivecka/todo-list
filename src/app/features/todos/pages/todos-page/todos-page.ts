@@ -1,9 +1,8 @@
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { TodosApiService } from '../../../../core/api/todos-api.service';
 import type { Todo, TodoRequest } from '../../models/todo-api.model';
-import { catchError, finalize, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, finalize, Observable, of, switchMap, tap } from 'rxjs';
 import { TaskForm } from '../../components/task-form/task-form';
-import { TaskList } from '../../components/task-list/task-list';
 import { CreateTaskFormValue } from '../../types/task-from-value.type';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Select } from '../../components/select/select';
@@ -12,12 +11,13 @@ import { TodoSort } from '../../models/todo-sort.model';
 import { TaskFilters } from '../../components/task-filters/task-filters';
 import { TodoFilters } from '../../models/todo-filters.model';
 import { FormsModule } from '@angular/forms';
+import { TaskItem } from '../../components/task-item/task-item';
 
 type StatisticsState = 'loading' | 'placeholder' | 'value';
 
 @Component({
   selector: 'app-todos-page',
-  imports: [TaskForm, TaskList, Select, TaskFilters, FormsModule],
+  imports: [TaskForm, Select, TaskFilters, FormsModule, TaskItem],
   templateUrl: './todos-page.html',
   styleUrl: './todos-page.scss',
 })
@@ -28,13 +28,15 @@ export class TodosPage {
     { value: { field: 'priority', order: 'asc' }, text: 'low-to-high' },
     { value: { field: 'priority', order: 'desc' }, text: 'high-to-low' },
   ];
-  protected readonly tasks = signal<Todo[]>([]);
+
   private readonly taskForm = viewChild(TaskForm);
+  protected readonly tasks = signal<Todo[]>([]);
   protected readonly selectedFilter = signal<TodoFilters>({});
   protected readonly selectedSorting = signal<TodoSort>(this.taskPriorityOptions[0].value);
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+
   protected readonly isCreating = signal(false);
   protected readonly createErrorMessage = signal<string | null>(null);
 
@@ -51,12 +53,20 @@ export class TodosPage {
   });
 
   protected readonly totalTasks = computed(() => this.tasks().length);
+
   protected readonly activeTasks = computed(
     () => this.tasks().filter((task) => !task.completed).length,
   );
+
   protected readonly completedTasks = computed(
     () => this.tasks().filter((task) => task.completed).length,
   );
+
+  constructor() {
+    effect(() => {
+      this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
+    });
+  }
 
   protected createTask(data: CreateTaskFormValue): void {
     const todoRequest: TodoRequest = {
@@ -89,28 +99,34 @@ export class TodosPage {
       });
   }
 
-  protected loadTasks(filters: TodoFilters, sort: TodoSort): Observable<Todo[]> {
+  protected retryLoadTasks(): void {
+    if (this.isLoading()) return;
+
+    this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
+  }
+
+  protected onItemUpdate() {
+    this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
+  }
+
+  private loadTasks(filters: TodoFilters, sort: TodoSort): Observable<Todo[]> {
     this.isLoading.set(true);
-    this.errorMessage.set(null);
 
     return this.todosApi.getTodos(filters, sort).pipe(
-      finalize(() => this.isLoading.set(false)),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 404) {
           return of([]);
         }
 
-        this.errorMessage.set('Couldn’t load your tasks');
+        this.errorMessage.set('Couldn’t load your tasks. Please try again.');
 
-        throw error;
+        return EMPTY;
       }),
       tap((todos: Todo[]) => this.tasks.set(todos)),
+      finalize(() => {
+        this.isLoading.set(false);
+        this.errorMessage.set(null);
+      }),
     );
-  }
-
-  constructor() {
-    effect(() => {
-      this.loadTasks(this.selectedFilter(), this.selectedSorting()).subscribe();
-    });
   }
 }

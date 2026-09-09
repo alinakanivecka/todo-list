@@ -64,7 +64,8 @@
 
   <section class="todos-page__toolbar">
     <app-task-filters (filterUpdated)="selectedFilter.set($event)"></app-task-filters>
-    <app-select [(ngModel)]="selectedSorting" [options]="taskPriorityOptions" placeholder="By priority" ariaLabel="Task priority"></app-select>
+    <app-select [(ngModel)]="selectedSorting" [options]="taskPriorityOptions" placeholder="By priority"
+      ariaLabel="Task priority"></app-select>
   </section>
 
   @if(isLoading() && tasks().length === 0) {
@@ -81,9 +82,9 @@
       </div>
       <h2>{{errorMessage()}}</h2>
       <p>Check your connection and try again.</p>
-      <button type="button" class="refresh-btn" (click)="loadTasks(selectedFilter(), this.selectedSorting()).subscribe()">
-        <i class="fa-solid fa-rotate-right"></i>
-        Try again</button>
+      <button type="button" class="refresh-btn" [disabled]="isLoading()" (click)="retryLoadTasks()">
+        <i class="fa-solid fa-rotate-right" [class.fa-spin]="isLoading()" aria-hidden="true"></i>
+        {{ isLoading() ? 'Retrying...' : 'Try again' }}</button>
     </div>
   </section>
   } @else if (tasks().length === 0) {
@@ -97,6 +98,10 @@
     </div>
   </section>
   } @else {
-  <app-task-list [tasks]="tasks()"></app-task-list>
+  <section class="tasks-list">
+    @for (task of tasks(); track task.id) {
+    <app-task-item [task]="task" (itemUpdated)="onItemUpdate()" (itemDeleted)="onItemUpdate()"></app-task-item>
+    }
+  </section>
   }
 </section>
